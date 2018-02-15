@@ -24,14 +24,16 @@ public class ConsoleController {
         ControllerFactory controllerFactory = new ExmoControllerFactory(exmo);
         BotExmoManager botExmoManager = new BotExmoManager(controllerFactory);
         ConsoleController consoleController = new ConsoleController(botExmoManager);
-        consoleController.createContract("BCH_RUB 5 sell 100");
-        consoleController.createContract("ETH_USDT 5 sell 100");
         consoleController.createContract("BTC_EUR 5 sell 100");
+        consoleController.createContract("ETH_USDT 5 sell 100");
+        consoleController.createContract("BCH_RUB 5 sell 100");
+        consoleController.createContract("LTC_EUR 7 buy 100");
         consoleController.listenConsole();
 
-//        consoleController.botExmoManager.addContract("BCH_RUB", 5, "sell", 100);
-//        consoleController.botExmoManager.addContract("ETH_USDT", 5, "sell", 100);
-//        consoleController.botExmoManager.addContract("BTC_EUR", 5, "sell", 100);
+//        consoleController.createContract("BTC_EUR 8 sell 100");
+//        consoleController.createContract("ETH_USDT 7 sell 100");
+//        consoleController.createContract("BCH_RUB 12 sell 100");
+//        consoleController.createContract("LTC_EUR 7 buy 100");
     }
 
     private void listenConsole() {
@@ -41,12 +43,13 @@ public class ConsoleController {
         while (!quit) {
             try {
                 String zp = reader.readLine();
-                switch (zp) {
+                String command = zp.split(" ")[0];
+                switch (command) {
                     case "quit":
                         quit = true;
                         break;
                     case "stop":
-                        botExmoManager.closeContracts();
+                        botExmoManager.stopManager();
                         break;
                     case "stat":
                         List<ContractCarrier> allContracts = botExmoManager.getAllContracts();
@@ -55,8 +58,7 @@ public class ConsoleController {
                         }
                         break;
                     case "set":
-                        System.out.println("ENTER pair , profit, type, deposit");
-                        createContract(reader.readLine());
+                        createContract(zp.replace(command,"").trim());
                         break;
                     default:
                         System.out.println("wrong!");

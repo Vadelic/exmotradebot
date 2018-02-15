@@ -7,6 +7,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by Komyshenets on 13.01.2018.
@@ -14,28 +16,40 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class BotExmoManager extends Thread {
     private static final Logger LOG = Logger.getLogger(BotExmoManager.class);
     private List<ContractCarrier> contractUnits = new CopyOnWriteArrayList<>();
-
-    private final ControllerFactory factory;
+    private final static ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+    private final ControllerFactory controllerMarketFactory;
+    private volatile boolean workFlag;
 
     public BotExmoManager(ControllerFactory controllerFactory) {
         super("MANAGER");
-        this.factory = controllerFactory;
+        this.controllerMarketFactory = controllerFactory;
     }
 
+    public void stopManager() {
+        workFlag = false;
+    }
 
     public void addContract(String pair, double profitInPercent, @Nullable String type, double depositPercent) {
         synchronized (this) {
-            if (type == null || "sell".equals(type))
+            if (type == null || TransactionContract.SELL.equals(type))
                 contractUnits.add(new ContractCarrier(pair, TransactionContract.SELL, profitInPercent, depositPercent));
 
-            if (type == null || "buy".equals(type))
+            if (type == null || TransactionContract.BUY.equals(type))
                 contractUnits.add(new ContractCarrier(pair, TransactionContract.BUY, profitInPercent, depositPercent));
 
-            try {
-                controlContractStatus();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            controlContractStatus();
+        }
+    }
+
+    public boolean stopContract(int index) {
+        synchronized (this) {
+            for (ContractCarrier contractUnit : contractUnits) {
+                if (contractUnit.index == index) {
+                    contractUnit.stopContract();
+                    return true;
+                }
             }
+            return false;
         }
     }
 
@@ -47,46 +61,44 @@ public class BotExmoManager extends Thread {
 
     @Override
     public void run() {
+        workFlag = true;
         try {
-            while (!isInterrupted()) {
+            while (workFlag) {
                 controlContractStatus();
                 Thread.sleep(1000 * 3);
             }
         } catch (Exception e) {
-            LOG.fatal("MANAGER is down");
+            LOG.fatal(e, e);
         } finally {
-            closeContracts();
+            stopAllContracts();
         }
-
+        LOG.fatal("MANAGER is down");
     }
 
-    public void closeContracts() {
+    private void stopAllContracts() {
         synchronized (this) {
             for (ContractCarrier contractUnit : contractUnits) {
-                contractUnit.stop();
+                contractUnit.stopContract();
             }
         }
     }
 
-
-    private void controlContractStatus() throws InterruptedException {
+    private void controlContractStatus() {
         synchronized (this) {
             for (ContractCarrier contractUnit : contractUnits) {
                 switch (contractUnit.getStatus()) {
                     case ContractCarrier.NEW: {
-                        Thread.sleep(3000);
-                        contractUnit.runContract(factory);
-                        break;
-                    }
-                    case ContractCarrier.DONE: {
-                        contractUnit.runContract(factory);
+                        runContract(contractUnit);
                         break;
                     }
                     case ContractCarrier.WORK: {
                         if (contractUnit.isDone()) {
                             printResult(contractUnit);
-
                         }
+                        break;
+                    }
+                    case ContractCarrier.DONE: {
+                        contractUnit.runContract(EXECUTOR, controllerMarketFactory);
                         break;
                     }
                 }
@@ -94,16 +106,25 @@ public class BotExmoManager extends Thread {
         }
     }
 
-    private boolean printResult(ContractCarrier carrier) {
+    private void runContract(ContractCarrier contractUnit) {
+        contractUnit.runContract(EXECUTOR, controllerMarketFactory);
         try {
-            System.out.println(carrier.getProfit());
-            System.out.println(carrier);
-            LOG.info("\n!!!! CONTRACT IS DONE !!!!\n");
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            LOG.error(e, e);
         }
-        return false;
+
+    }
+
+    private void printResult(ContractCarrier carrier) {
+        try {
+            LOG.info("\n!!!! CONTRACT IS DONE !!!!");
+            System.out.println(carrier.getProfitResult());
+            System.out.println(carrier);
+            LOG.info("!!!! CONTRACT IS DONE !!!!\n");
+        } catch (Exception e) {
+            LOG.warn(e, e);
+        }
     }
 
 

@@ -1,6 +1,9 @@
 package com.vadelic.exmo.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
@@ -13,15 +16,19 @@ public class CompleteOrder {
     public String type;
 
     @JsonProperty("in_currency")
+    @JsonAlias({"inCurrency"})
     private String inCurrency;
 
     @JsonProperty("in_amount")
+    @JsonAlias({"inAmount"})
     private double inAmount;
 
     @JsonProperty("out_currency")
+    @JsonAlias({"outCurrency"})
     public String outCurrency;
 
     @JsonProperty("out_amount")
+    @JsonAlias({"outAmount"})
     private double outAmount;
 
     @JsonProperty("trades")
@@ -38,7 +45,6 @@ public class CompleteOrder {
                 } else result += trade.amount;
             }
         }
-        System.out.println(result + " " + outAmount);
         return outAmount;
     }
 
@@ -52,7 +58,6 @@ public class CompleteOrder {
             }
 
         }
-        System.out.println(result + " " + inAmount);
         return inAmount;
     }
 
@@ -63,15 +68,19 @@ public class CompleteOrder {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("CompleteOrder{");
-        sb.append("type='").append(type).append('\'');
-        sb.append(", inCurrency='").append(inCurrency).append('\'');
-        sb.append(", inAmount=").append(inAmount);
-        sb.append(", outCurrency='").append(outCurrency).append('\'');
-        sb.append(", outAmount=").append(outAmount);
-        sb.append(", trades=").append(trades);
-        sb.append(", order=").append(order);
-        sb.append('}');
-        return sb.toString();
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            final StringBuffer sb = new StringBuffer("CompleteOrder{");
+            sb.append("type='").append(type).append('\'');
+            sb.append(", inCurrency='").append(inCurrency).append('\'');
+            sb.append(", inAmount=").append(inAmount);
+            sb.append(", outCurrency='").append(outCurrency).append('\'');
+            sb.append(", outAmount=").append(outAmount);
+            sb.append(", trades=").append(trades);
+            sb.append(", order=").append(order);
+            sb.append('}');
+            return sb.toString();
+        }
     }
 }

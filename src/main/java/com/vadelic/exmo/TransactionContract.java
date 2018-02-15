@@ -1,5 +1,7 @@
 package com.vadelic.exmo;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vadelic.exmo.controller.MarketController;
 import com.vadelic.exmo.model.CompleteOrder;
 import com.vadelic.exmo.model.Order;
@@ -32,9 +34,9 @@ public class TransactionContract implements Callable<Map<String, CompleteOrder>>
         this.depositPercent = depositPercent;
     }
 
-
     @Override
     public Map<String, CompleteOrder> call() {
+        Thread.currentThread().setName(String.format("[%s] [%s] CONTRACT", controller.getPair(), typeContract));
         Map<String, CompleteOrder> response = new HashMap<String, CompleteOrder>() {{
             put("start", null);
             put("re", null);
@@ -53,13 +55,13 @@ public class TransactionContract implements Callable<Map<String, CompleteOrder>>
             if (future != null)
                 future.cancel(true);
         }
+
         return response;
     }
 
     private CompleteOrder execReOrder(double completeIn) throws InterruptedException, java.util.concurrent.ExecutionException {
         Order reTradeOrder = createReTradeOrder(completeIn);
         ReOrderWaiter reTradeOrderWaiter = new ReOrderWaiter(controller, reTradeOrder);
-        reTradeOrderWaiter.setName(String.format("[%s] RE ODER [%s]", controller.getPair(), reTradeOrder.type));
         future = executor.submit(reTradeOrderWaiter);
 
         return future.get();
@@ -78,7 +80,6 @@ public class TransactionContract implements Callable<Map<String, CompleteOrder>>
         double validDeposit = controller.getDeposit(typeContract) * (depositPercent / 100);
         Order order = new Order(typeContract, validDeposit);
         StartOrderWaiter orderWaiter = new StartOrderWaiter(controller, order, (profitPercent / 100));
-        orderWaiter.setName(String.format("[%s] START ODER [%s]", controller.getPair(), typeContract));
         future = executor.submit(orderWaiter);
 
         return future.get();
@@ -87,11 +88,19 @@ public class TransactionContract implements Callable<Map<String, CompleteOrder>>
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("TransactionContract{");
-        sb.append("pair=").append(controller.getPair());
-        sb.append(", typeContract='").append(typeContract).append('\'');
-        sb.append(", profit=").append(profitPercent).append("%");
-        sb.append('}');
-        return sb.toString();
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            final StringBuffer sb = new StringBuffer("TransactionContract{");
+            sb.append("pair=").append(controller.getPair());
+            sb.append(", typeContract='").append(typeContract).append('\'');
+            sb.append(", profit=").append(profitPercent).append("%");
+            sb.append('}');
+            return sb.toString();
+        }
+    }
+
+    public void cancel() {
+
     }
 }

@@ -88,8 +88,8 @@ public class ExmoMarketController implements MarketController {
             return true;
         } catch (ExmoRestApiException e) {
 
-            LOG.debug(pairSettings);
             LOG.debug(String.format("\n%s Order %s was't create %s", e, getPair(), order));
+            LOG.debug(pairSettings);
             return false;
         }
 
@@ -105,7 +105,7 @@ public class ExmoMarketController implements MarketController {
 
         } catch (ExmoRestApiException e) {
             if (e.getCode() != 50304)
-                LOG.warn(e + " " + order);
+                LOG.warn(e + " " + getPair() + " " + order);
         }
         return new CompleteOrder();
     }
@@ -126,20 +126,28 @@ public class ExmoMarketController implements MarketController {
 
     @Override
     public boolean orderExist(Order order) {
-        if (order.orderId == 0) return false;
 
         try {
-            List<Map<String, Object>> maps = market.openOrders().get(getPair());
-            if (maps == null) return false;
+            return isOrderExist(order);
+        } catch (ExmoRestApiException e) {
+            LOG.warn(e + " " + getPair() + " " + order);
+            try {
+                return isOrderExist(order);
+            } catch (ExmoRestApiException e1) {
+                return false;
+            }
+        }
+    }
+
+
+    private boolean isOrderExist(Order order) throws ExmoRestApiException {
+        if (order.orderId == 0) return false;
+        List<Map<String, Object>> maps = market.openOrders().get(getPair());
+        if (maps != null)
             for (Map<String, Object> map : maps) {
                 if (String.valueOf(order.orderId).equals(map.get("order_id"))) return true;
             }
-        } catch (ExmoRestApiException e) {
-            LOG.warn(e + " " + getPair() + " " + order);
-            return orderExist(order);
-        }
         return false;
-
     }
 
     @Override

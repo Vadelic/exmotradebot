@@ -14,7 +14,7 @@ public class ExmoControllerFactory implements ControllerFactory {
     }
 
     @Override
-    public MarketController getController(String pair) throws ExmoRestApiException {
+    public MarketController getPairController(String pair) throws ExmoRestApiException {
         return new ExmoMarketController(exmo, pair);
     }
 }

@@ -1,0 +1,127 @@
+{
+  "pair": "ETH_USDT",
+  "type": "sell",
+  "profit": 5.0,
+  "status": 2,
+  "depositPercent": 100.0,
+  "startOrderResult": {
+    "type": "sell",
+    "inCurrency": "USDT",
+    "inAmount": 239.6189288,
+    "outCurrency": "ETH",
+    "outAmount": 0.21892986,
+    "trades": [
+      {
+        "trade_id": 45127471,
+        "type": "sell",
+        "pair": "ETH_USDT",
+        "order_id": 514596598,
+        "quantity": 0.21892986,
+        "price": 1094.5009,
+        "amount": 239.6189288
+      }
+    ],
+    "order": {
+      "type": "sell",
+      "price": 1094.5009,
+      "quantity": 0.22314428,
+      "order_id": 514596598
+    }
+  },
+  "reOrderResult": {
+    "type": "buy",
+    "inCurrency": "ETH",
+    "inAmount": 0.22232643,
+    "outCurrency": "USDT",
+    "outAmount": 234.82654386,
+    "trades": [
+      {
+        "trade_id": 45129007,
+        "type": "buy",
+        "pair": "ETH_USDT",
+        "order_id": 514616345,
+        "quantity": 0.00841586,
+        "price": 1056.22414715,
+        "amount": 8.88903455
+      },
+      {
+        "trade_id": 45128996,
+        "type": "buy",
+        "pair": "ETH_USDT",
+        "order_id": 514616345,
+        "quantity": 0.01844287,
+        "price": 1056.22414715,
+        "amount": 19.47980463
+      },
+      {
+        "trade_id": 45128989,
+        "type": "buy",
+        "pair": "ETH_USDT",
+        "order_id": 514616345,
+        "quantity": 0.01928402,
+        "price": 1056.22414715,
+        "amount": 20.36824757
+      },
+      {
+        "trade_id": 45128979,
+        "type": "buy",
+        "pair": "ETH_USDT",
+        "order_id": 514616345,
+        "quantity": 0.01923113,
+        "price": 1056.22414715,
+        "amount": 20.31238388
+      },
+      {
+        "trade_id": 45128953,
+        "type": "buy",
+        "pair": "ETH_USDT",
+        "order_id": 514616345,
+        "quantity": 0.01928402,
+        "price": 1056.22414715,
+        "amount": 20.36824757
+      },
+      {
+        "trade_id": 45128949,
+        "type": "buy",
+        "pair": "ETH_USDT",
+        "order_id": 514616345,
+        "quantity": 0.03033809,
+        "price": 1056.22414715,
+        "amount": 32.04382323
+      },
+      {
+        "trade_id": 45128942,
+        "type": "buy",
+        "pair": "ETH_USDT",
+        "order_id": 514616345,
+        "quantity": 0.0192912,
+        "price": 1056.22414715,
+        "amount": 20.37583126
+      },
+      {
+        "trade_id": 45128938,
+        "type": "buy",
+        "pair": "ETH_USDT",
+        "order_id": 514616345,
+        "quantity": 0.07603924,
+        "price": 1056.22414715,
+        "amount": 80.31448141
+      },
+      {
+        "trade_id": 45128936,
+        "type": "buy",
+        "pair": "ETH_USDT",
+        "order_id": 514616345,
+        "quantity": 0.012,
+        "price": 1056.22414715,
+        "amount": 12.67468976
+      }
+    ],
+    "order": {
+      "type": "buy",
+      "price": 1056.22414715,
+      "quantity": 234.826550224,
+      "order_id": 514616345
+    }
+  }
+}

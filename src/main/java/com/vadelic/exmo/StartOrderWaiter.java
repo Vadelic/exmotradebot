@@ -16,7 +16,6 @@ public class StartOrderWaiter implements Callable<CompleteOrder> {
     private Order order;
     private final Logger LOG = Logger.getLogger(getClass());
     private final double profit;
-    private String nameThread;
 
     public StartOrderWaiter(MarketController controller, Order startOrder, double profit) {
         this.controller = controller;
@@ -24,15 +23,10 @@ public class StartOrderWaiter implements Callable<CompleteOrder> {
         this.profit = profit;
     }
 
-
-    public void setName(String name) {
-        this.nameThread = name;
-    }
-
     private double calcBestPrice() {
         try {
             double price = controller.getPairPrice(order.type);
-            double v = 0;
+            double v;
             if ("sell".equals(order.type)) {
                 v = price * ((1 + this.profit) / (1 - 0.002 * 0.998));
             } else {
@@ -61,7 +55,7 @@ public class StartOrderWaiter implements Callable<CompleteOrder> {
     @Nullable
     @Override
     public CompleteOrder call() {
-        Thread.currentThread().setName(nameThread);
+        Thread.currentThread().setName(String.format("[%s] [%s] START ODER", controller.getPair(), order.type));
 
         CompleteOrder result = null;
         try {
@@ -82,6 +76,8 @@ public class StartOrderWaiter implements Callable<CompleteOrder> {
 
                     Thread.sleep(1000 * 60);
                 }
+                result = controller.getOrderResult(order);
+
             } else {
                 LOG.fatal(String.format("Can't open order %s", order));
             }
