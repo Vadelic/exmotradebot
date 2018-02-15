@@ -45,7 +45,8 @@ public class CompleteOrder {
                 } else result += trade.amount;
             }
         }
-        return outAmount;
+//        return outAmount;
+        return result;
     }
 
     public double getCompleteIn() {
@@ -56,9 +57,9 @@ public class CompleteOrder {
                     result += trade.quantity;
                 } else result += trade.amount;
             }
-
         }
-        return inAmount;
+//        return result;
+        return result;
     }
 
 

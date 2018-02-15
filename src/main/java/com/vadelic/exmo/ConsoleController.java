@@ -1,7 +1,6 @@
 package com.vadelic.exmo;
 
-import com.vadelic.exmo.controller.ControllerFactory;
-import com.vadelic.exmo.controller.ExmoControllerFactory;
+import com.vadelic.exmo.contract.TransactionContract;
 import com.vadelic.exmo.market.Exmo;
 
 import java.io.BufferedReader;
@@ -21,13 +20,12 @@ public class ConsoleController {
 
     public static void main(String[] args) {
         Exmo exmo = new Exmo(args[0], args[1]);
-        ControllerFactory controllerFactory = new ExmoControllerFactory(exmo);
-        BotExmoManager botExmoManager = new BotExmoManager(controllerFactory);
+        BotExmoManager botExmoManager = new BotExmoManager(exmo);
         ConsoleController consoleController = new ConsoleController(botExmoManager);
-        consoleController.createContract("BTC_EUR 5 sell 100");
-        consoleController.createContract("ETH_USDT 5 sell 100");
-        consoleController.createContract("BCH_RUB 5 sell 100");
-        consoleController.createContract("LTC_EUR 7 buy 100");
+        consoleController.createContract("BTC_EUR 4 sell");
+        consoleController.createContract("ETH_USDT 4 sell");
+        consoleController.createContract("BCH_RUB 4 sell");
+        consoleController.createContract("LTC_EUR 6 buy");
         consoleController.listenConsole();
 
 //        consoleController.createContract("BTC_EUR 8 sell 100");
@@ -52,8 +50,8 @@ public class ConsoleController {
                         botExmoManager.stopManager();
                         break;
                     case "stat":
-                        List<ContractCarrier> allContracts = botExmoManager.getAllContracts();
-                        for (ContractCarrier allContract : allContracts) {
+                        List<TransactionContract> allContracts = botExmoManager.getAllContracts();
+                        for (TransactionContract allContract : allContracts) {
                             System.out.println(allContract);
                         }
                         break;
@@ -77,8 +75,8 @@ public class ConsoleController {
             String pair = split[0];
             double profit = Double.parseDouble(split[1]);
             String type = split[2];
-            double deposit = Double.parseDouble(split[3]);
-            botExmoManager.addContract(pair, profit, type, deposit);
+
+            botExmoManager.addContract(pair, profit, type);
             System.out.println("ok");
         } catch (Exception e) {
             System.out.println("can't create");

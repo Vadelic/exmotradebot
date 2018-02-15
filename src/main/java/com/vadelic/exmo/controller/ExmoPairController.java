@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Created by Komyshenets on 12.01.2018.
  */
-public class ExmoMarketController implements MarketController {
+public class ExmoPairController implements MarketController {
     private final Map<String, Double> pairSettings;
     private Exmo market;
     private String currencyA;
@@ -22,7 +22,7 @@ public class ExmoMarketController implements MarketController {
 
     private final Logger LOG = Logger.getLogger(getClass());
 
-    public ExmoMarketController(Exmo market, String pair) throws ExmoRestApiException {
+    public ExmoPairController(Exmo market, String pair) throws ExmoRestApiException {
         this.market = market;
         this.pairSettings = market.pairSettings().get(pair);
 
@@ -84,12 +84,11 @@ public class ExmoMarketController implements MarketController {
                 quantity /= order.price;
             }
             order.orderId = market.createOrder(getPair(), quantity, order.price, order.type);
-            LOG.debug(String.format("\nOrder was create %s", order));
+            LOG.debug(String.format("Order was create %s", order));
             return true;
         } catch (ExmoRestApiException e) {
 
             LOG.debug(String.format("\n%s Order %s was't create %s", e, getPair(), order));
-            LOG.debug(pairSettings);
             return false;
         }
 

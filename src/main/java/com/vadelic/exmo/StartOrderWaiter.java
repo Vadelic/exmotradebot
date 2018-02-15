@@ -6,21 +6,22 @@ import com.vadelic.exmo.model.Order;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.Callable;
-
 /**
  * Created by Komyshenets on 11.01.2018.
  */
-public class StartOrderWaiter implements Callable<CompleteOrder> {
+public class StartOrderWaiter implements OrderWaiter {
     private final MarketController controller;
     private Order order;
     private final Logger LOG = Logger.getLogger(getClass());
     private final double profit;
+    private volatile boolean workFlag;
+
 
     public StartOrderWaiter(MarketController controller, Order startOrder, double profit) {
         this.controller = controller;
         this.order = startOrder;
         this.profit = profit;
+        this.workFlag = true;
     }
 
     private double calcBestPrice() {
@@ -61,33 +62,49 @@ public class StartOrderWaiter implements Callable<CompleteOrder> {
         try {
             order.price = calcBestPrice();
 
-            if (controller.registerOrder(order)) {
+            boolean orderExist = controller.registerOrder(order);
+            if (!orderExist) {
+                LOG.debug("try again..");
+                orderExist = controller.registerOrder(order);
+            }
+
+            if (orderExist) {
                 LOG.info("Order was started...." + order);
-
-                while (controller.orderExist(order)) {
-                    result = controller.getOrderResult(order);
-
-                    if (result.isComplete()) {
-                        controller.closeOrder(order);
-                        break;
-                    } else {
-                        reOpenOrder();
-                    }
-
-                    Thread.sleep(1000 * 60);
-                }
-                result = controller.getOrderResult(order);
-
             } else {
                 LOG.fatal(String.format("Can't open order %s", order));
+                return null;
+            }
+
+            while (workFlag && orderExist) {
+                result = controller.getOrderResult(order);
+                if (result.isComplete()) {
+                    controller.closeOrder(order);
+                    break;
+                } else {
+                    reOpenOrder();
+                }
+                try {
+                    Thread.sleep(1000 * 60);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                orderExist = controller.orderExist(order);
             }
 
 
-        } catch (Exception e) {
-            controller.closeOrder(order);
+        } finally {
+            if (controller.orderExist(order)) {
+                controller.closeOrder(order);
+            }
+            result = controller.getOrderResult(order);
         }
 
-        LOG.info(String.format("\nCOMPLETE: %s", result));
+        LOG.info(String.format("COMPLETE: %s", result));
         return result;
+    }
+
+    @Override
+    public void closeOrder() {
+        workFlag = false;
     }
 }
