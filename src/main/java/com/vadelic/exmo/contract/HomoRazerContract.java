@@ -1,8 +1,8 @@
 package com.vadelic.exmo.contract;
 
-import com.vadelic.exmo.OrderWaiter;
-import com.vadelic.exmo.ReOrderWaiter;
-import com.vadelic.exmo.StartOrderWaiter;
+import com.vadelic.exmo.waiter.OrderWaiter;
+import com.vadelic.exmo.waiter.ReOrderWaiter;
+import com.vadelic.exmo.waiter.StartOrderWaiter;
 import com.vadelic.exmo.controller.MarketController;
 import com.vadelic.exmo.model.CompleteOrder;
 import com.vadelic.exmo.model.Order;
@@ -51,7 +51,7 @@ public class HomoRazerContract extends AbstractContract {
 
 
     private CompleteOrder waitOrder(OrderWaiter orderWaiter) throws InterruptedException, java.util.concurrent.ExecutionException {
-        LOG.debug("start Waiter ");
+        LOG.debug("start Waiter");
 
         Future<CompleteOrder> future = executor.submit(orderWaiter);
         while (status == WORK) {
@@ -88,7 +88,7 @@ public class HomoRazerContract extends AbstractContract {
     private OrderWaiter createReOrder(double completeIn) {
         Order reTradeOrder;
 
-        double quantity = completeIn * (1 - 0.02);
+        double quantity = completeIn /** (1 - 0.02)*/;
         if (SELL.equals(typeContract)) {
             reTradeOrder = new Order(BUY, quantity);
         } else {

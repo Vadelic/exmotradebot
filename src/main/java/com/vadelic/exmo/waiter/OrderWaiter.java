@@ -1,4 +1,4 @@
-package com.vadelic.exmo;
+package com.vadelic.exmo.waiter;
 
 import com.vadelic.exmo.model.CompleteOrder;
 

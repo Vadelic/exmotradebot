@@ -10,10 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class AbstractContract extends Thread implements TransactionContract {
     public static final String SELL = "sell";
     public static final String BUY = "buy";
-     static final int NEW = 0;
-     static final int WORK = 1;
-     static final int DONE = 2;
-     static final int CRASH = 3;
+
     private static int counter = 0;
     final Logger LOG = Logger.getLogger(getClass());
     final MarketController pairController;
@@ -48,6 +45,11 @@ public abstract class AbstractContract extends Thread implements TransactionCont
     }
 
     @Override
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    @Override
     public int getIndex() {
         return index;
     }
@@ -66,5 +68,10 @@ public abstract class AbstractContract extends Thread implements TransactionCont
         sb.append(", type:\'").append(typeContract).append('\'');
         sb.append(", ");
         return sb.toString();
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+            return super.clone();
     }
 }

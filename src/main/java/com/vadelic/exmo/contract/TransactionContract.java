@@ -20,4 +20,6 @@ public interface TransactionContract {
     void startContract();
 
     boolean isAlive();
+
+    void setStatus(int status);
 }
