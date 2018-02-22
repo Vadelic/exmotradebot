@@ -9,4 +9,6 @@ import java.util.concurrent.Callable;
  */
 public interface OrderWaiter extends Callable<CompleteOrder> {
     void closeOrder();
+
+    void force();
 }

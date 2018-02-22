@@ -1,11 +1,11 @@
 package com.vadelic.exmo.contract;
 
-import com.vadelic.exmo.waiter.OrderWaiter;
-import com.vadelic.exmo.waiter.ReOrderWaiter;
-import com.vadelic.exmo.waiter.StartOrderWaiter;
 import com.vadelic.exmo.controller.MarketController;
 import com.vadelic.exmo.model.CompleteOrder;
 import com.vadelic.exmo.model.Order;
+import com.vadelic.exmo.waiter.OrderWaiter;
+import com.vadelic.exmo.waiter.ReOrderWaiter;
+import com.vadelic.exmo.waiter.StartOrderWaiter;
 
 import java.util.concurrent.*;
 
@@ -13,13 +13,12 @@ import java.util.concurrent.*;
  * Created by Komyshenets on 11.01.2018.
  */
 public class HomoRazerContract extends AbstractContract {
-
-
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final double profitPercent;
 
     private CompleteOrder startOrderResult = null;
     private CompleteOrder reOrderResult = null;
+    private volatile boolean force = false;
 
     public HomoRazerContract(MarketController controller, String typeContract, double profitInPercent) {
         super(controller, typeContract);
@@ -57,6 +56,10 @@ public class HomoRazerContract extends AbstractContract {
         while (status == WORK) {
 
             try {
+                if (force){
+                    orderWaiter.force();
+                    force=false;
+                }
                 return future.get(3, TimeUnit.SECONDS);
             } catch (TimeoutException e) {
             }
@@ -75,6 +78,11 @@ public class HomoRazerContract extends AbstractContract {
         }
 
         return String.format("[%s] %s", typeContract, startOrderResult);
+    }
+
+    @Override
+    public void force() {
+        this.force = true;
     }
 
     private OrderWaiter createStartOrder() {

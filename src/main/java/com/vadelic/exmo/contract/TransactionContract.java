@@ -22,4 +22,6 @@ public interface TransactionContract {
     boolean isAlive();
 
     void setStatus(int status);
+
+    void force();
 }

@@ -107,4 +107,9 @@ public class StartOrderWaiter implements OrderWaiter {
     public void closeOrder() {
         workFlag = false;
     }
+
+    @Override
+    public void force() {
+
+    }
 }
